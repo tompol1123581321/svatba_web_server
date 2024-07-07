@@ -17,7 +17,6 @@ async function readDataFromKV() {
   const iter = openKvClient.list({ prefix: [] });
   const items = [];
   for await (const res of iter) {
-    console.log(res);
     items.push(res);
   }
   return items;
@@ -51,12 +50,6 @@ const handleGetRequest = async (request: Request): Promise<Response> => {
       headers.get("SECRET_HEADER_KEY") === Deno.env.get("SECRET_HEADER_KEY")
     ) {
       const data = await readDataFromKV();
-      console.log(
-        "gotten get",
-        headers.get("SECRET_HEADER_KEY"),
-        Deno.env.get("SECRET_HEADER_KEY"),
-        JSON.stringify(data)
-      );
       return new Response(JSON.stringify(data), { status: 200 });
     } else {
       return new Response("Failed to process the request (Secret)", {
