@@ -12,6 +12,14 @@ async function saveDataToKV(key: string, data: any) {
   return result;
 }
 
+async function readDataFromKV() {
+  const openKvClient = await Deno.openKv();
+  const iter = openKvClient.list({ prefix: [""] });
+  const items = [];
+  for await (const res of iter) items.push(res);
+  return items;
+}
+
 const decodeJson = async (reader: ReadableStream<Uint8Array>): Promise<any> => {
   const decoder = new TextDecoder();
   const body = await reader.getReader().read();
@@ -27,6 +35,16 @@ const handlePostRequest = async (request: Request): Promise<Response> => {
     const key = `data-${new Date().toISOString()}`; // Generate a unique key for each entry
     await saveDataToKV(key, data);
     return new Response("Data saved successfully", { status: 200 });
+  } catch (error) {
+    console.error("Error processing POST request:", error);
+    return new Response("Failed to process the request", { status: 500 });
+  }
+};
+
+const handleGetRequest = async (request: Request): Promise<Response> => {
+  try {
+    const data = await readDataFromKV();
+    return new Response(JSON.stringify(data), { status: 200 });
   } catch (error) {
     console.error("Error processing POST request:", error);
     return new Response("Failed to process the request", { status: 500 });
@@ -55,6 +73,12 @@ const handler = async (request: Request): Promise<Response> => {
   if (request.method === "POST" && request.url.includes("/submit_form_data")) {
     const response = await handlePostRequest(request);
     response.headers.set("Access-Control-Allow-Origin", "*");
+    return response;
+  } else if (
+    request.method === "GET" &&
+    request.url.includes("/read_form_data")
+  ) {
+    const response = await handleGetRequest(request);
     return response;
   } else {
     return new Response("Not Found", { status: 404, headers });
