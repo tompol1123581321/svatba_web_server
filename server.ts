@@ -46,9 +46,23 @@ const handlePostRequest = async (request: Request): Promise<Response> => {
 
 const handleGetRequest = async (request: Request): Promise<Response> => {
   try {
-    const data = await readDataFromKV();
-    console.log("gotten get", JSON.stringify(data));
-    return new Response(JSON.stringify(data), { status: 200 });
+    const { headers } = request;
+    if (
+      headers.get("SECRET_HEADER_KEY") === Deno.env.get("SECRET_HEADER_KEY")
+    ) {
+      const data = await readDataFromKV();
+      console.log(
+        "gotten get",
+        headers.get("SECRET_HEADER_KEY"),
+        Deno.env.get("SECRET_HEADER_KEY"),
+        JSON.stringify(data)
+      );
+      return new Response(JSON.stringify(data), { status: 200 });
+    } else {
+      return new Response("Failed to process the request (Secret)", {
+        status: 500,
+      });
+    }
   } catch (error) {
     console.error("Error processing POST request:", error);
     return new Response("Failed to process the request", { status: 500 });
