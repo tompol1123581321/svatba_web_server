@@ -44,6 +44,7 @@ const handlePostRequest = async (request: Request): Promise<Response> => {
 const handleGetRequest = async (request: Request): Promise<Response> => {
   try {
     const data = await readDataFromKV();
+    console.log("gotten get", JSON.stringify(data));
     return new Response(JSON.stringify(data), { status: 200 });
   } catch (error) {
     console.error("Error processing POST request:", error);
