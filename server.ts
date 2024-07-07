@@ -14,9 +14,12 @@ async function saveDataToKV(key: string, data: any) {
 
 async function readDataFromKV() {
   const openKvClient = await Deno.openKv();
-  const iter = openKvClient.list({ prefix: [""] });
+  const iter = openKvClient.list({ prefix: [] });
   const items = [];
-  for await (const res of iter) items.push(res);
+  for await (const res of iter) {
+    console.log(res);
+    items.push(res);
+  }
   return items;
 }
 
