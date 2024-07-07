@@ -6,6 +6,12 @@ const smtpClient = new SmtpClient();
 
 const setupEmailClient = async () => {
   try {
+    console.log(
+      Deno.env.get("SMTP_HOST"),
+      parseInt(Deno.env.get("SMTP_PORT") || "465"),
+      Deno.env.get("SMTP_USERNAME"),
+      Deno.env.get("SMTP_PASSWORD")
+    );
     await smtpClient.connectTLS({
       hostname: Deno.env.get("SMTP_HOST") ?? "", // SMTP server address as environment variable
       port: parseInt(Deno.env.get("SMTP_PORT") || "465"), // SMTP port as environment variable, defaulting to 465
